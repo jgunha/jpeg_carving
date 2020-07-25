@@ -24,7 +24,10 @@ def file_read(f,file,f_size):
     sec = f.read(f_size)
     hex_b = binascii.hexlify(sec)
     #jpeg 파일 시그니처 검사
-    if hex_b[:8] == b'ffd8ffe0':
+
+    if hex_b.find(b'ffd8ffe0') != -1:
+        offset_h = hex_b.find(b'ffd8ffe0')//2
+        offset_f = hex_b.rfind(b'ffd9')//2
         jpg_count += 1
         num = 2
         check = 0
@@ -38,8 +41,13 @@ def file_read(f,file,f_size):
                     num+=1
         else:
             output_file = open("Recovery/" + file.split('.')[0] + ".jpg", "wb")
+        f.seek(0)
+        f.read(offset_h)
+        sec = f.read(offset_f - offset_h + 2)
         output_file.write(sec)
         output_file.close()
+
+
 
 def main():
     if len(sys.argv) != 2:
